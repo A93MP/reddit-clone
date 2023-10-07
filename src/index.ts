@@ -1,6 +1,7 @@
 import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@apollo/server/express4'
 import { MikroORM } from '@mikro-orm/core'
-import express from 'express'
+import express, { json } from 'express'
 import { buildSchema } from 'type-graphql'
 import mikroOrmConfig from './mikro-orm.config'
 import { HelloResolver } from './resolvers/hello'
@@ -16,6 +17,8 @@ const main = async () => {
       validate: false
     })
   })
+  await apolloServer.start()
+  app.use('/graphql', json(), expressMiddleware(apolloServer, {}))
   app.listen(PORT, () => {
     console.log(`server started on http://127.0.0.1:${PORT}`)
   })

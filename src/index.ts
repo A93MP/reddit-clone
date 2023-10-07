@@ -1,14 +1,17 @@
 import { MikroORM } from '@mikro-orm/core'
-import { __prod__ } from './constants'
-import { Post } from './entities/Post'
-const main = async () =>{
-  const orm = await MikroORM.init({
-    entities :[Post],
-    dbName: 'redditclone',
-    type:'postgresql',
-    debug:!__prod__
-
+import express from 'express'
+import mikroOrmConfig from './mikro-orm.config'
+const PORT = process.env.PORT || 3000
+const main = async () => {
+  const orm = await MikroORM.init(mikroOrmConfig)
+  const em = orm.em.fork()
+  await orm.getMigrator().up()
+  const app = express()
+  app.get('/', (_, res) => {
+    res.send('Hello World from express')
   })
-const post = orm.em.create(Post,{title:'my first post'})
+  app.listen(PORT, () => {
+    console.log(`server started on http://127.0.0.1:${PORT}`)
+  })
 }
-main()
+main().catch(err => console.error('This err: ' + err))
